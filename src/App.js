@@ -1,25 +1,48 @@
-import logo from './logo.svg';
+import React, {Component} from 'react';
+
+import { CardList } from './component/card-list/card-list.component';
+
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+
+    constructor() {
+        super();
+
+        this.state = {
+            page: 50,
+            pokemons : []
+        };
+    }
+
+    componentDidMount(){
+
+
+        fetch('https://pokeapi.co/api/v2/pokemon?limit=50')
+        .then(response => response.json())
+        .then(name => this.setState({pokemons:name.results}));
+    }
+    
+    handleClick = () => {
+        fetch(`https://pokeapi.co/api/v2/pokemon?limit=50&offset=${this.state.page}`)
+            .then((response) => response.json())
+            .then((name) => {
+                const newPokemons = [...this.state.pokemons, ...name.results ]
+                this.setState({ ...this.state, page: this.state.page+50, pokemons: newPokemons });
+            });
+    }
+
+    render(){
+        const { pokemons } = this.state;
+
+        return(
+            <div className="App">
+                <CardList pokemons={pokemons}></CardList>
+                <button onClick={this.handleClick}> Nuevo pokemon </button>
+            </div>
+            
+        );
+    }
 }
 
 export default App;
